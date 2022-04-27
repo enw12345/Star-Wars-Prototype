@@ -1,0 +1,11 @@
+Model Information:
+* title:	X-Wing Vs Tie Phantom
+* source:	https://sketchfab.com/3d-models/x-wing-vs-tie-phantom-9e09e7d36a4e4492bfc11376ec62c520
+* author:	lightwarrior (https://sketchfab.com/lightwarrior)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "X-Wing Vs Tie Phantom" (https://sketchfab.com/3d-models/x-wing-vs-tie-phantom-9e09e7d36a4e4492bfc11376ec62c520) by lightwarrior (https://sketchfab.com/lightwarrior) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
