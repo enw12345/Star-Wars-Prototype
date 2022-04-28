@@ -26,8 +26,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _HaloFalloff: 1.66
-    - _NebulaDensity: 0.056
+    - _HaloFalloff: 4.5
+    - _NebulaDensity: 0.115
     - _NebulaFalloff: 5
     - _NebulaOffset: 2.22
     - _NebulaOffset1: 1.91
@@ -35,18 +35,18 @@ Material:
     - _NebulaOffset3: 1.16
     - _NebulaOffset4: 2.09
     - _NebulaScale: 0.08
-    - _StarBrightness: 1.3
+    - _StarBrightness: 4.23
     - _StarDensity: 0.0076
-    - _StarRadius: 0.153
+    - _StarRadius: 0.073
     - _StarScale: 0.142
     m_Colors:
     - _CellSize: {r: 2, g: 2, b: 2, a: 0}
     - _CoreColor: {r: 0.6650944, g: 0.8726946, b: 1, a: 1}
     - _HaloColor: {r: 0, g: 0.3625934, b: 1, a: 1}
-    - _NebulaColor: {r: 0.25943398, g: 0.28557158, b: 1, a: 1}
-    - _NebulaColor1: {r: 0.3160377, g: 1, b: 0.5359786, a: 1}
+    - _NebulaColor: {r: 0, g: 0.037037373, b: 1, a: 1}
+    - _NebulaColor1: {r: 0, g: 0.7830189, b: 0.25200608, a: 1}
     - _NebulaColor2: {r: 0, g: 0, b: 0, a: 1}
-    - _NebulaColor3: {r: 0.6836933, g: 0.49519405, b: 0.9811321, a: 1}
+    - _NebulaColor3: {r: 0.16392669, g: 0, b: 0.4245283, a: 1}
     - _NebulaColor4: {r: 0, g: 0, b: 0, a: 1}
     - _StarCenter: {r: 0.31, g: 0.66, b: 0, a: 0}
   m_BuildTextureStacks: []
