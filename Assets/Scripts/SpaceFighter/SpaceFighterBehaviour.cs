@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Net.Sockets;
 using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -10,85 +11,87 @@ namespace SpaceFighter
     {
         [SerializeField] private float maxSpeed = 5f;
         [SerializeField] private float turnSpeed = 2f;
-        [SerializeField] private Transform cameraFollowTransform;
         [SerializeField] private float turnConstraintAngle = 45f;
         [SerializeField] private float sensitivity = 100f;
-        private float acceleration = 1f;
         private float currentSpeed = 0;
         [SerializeField] private float energy = 5f;
         [SerializeField] private float speedBoostMultiplier = 10f;
-        
-        public float CurrentAcceleration => acceleration;
-
-        private void Start()
+        private Vector3 rotation = Vector3.zero;
+        [SerializeField] [Range(0.5f, 1)] private float maxViewportClamp = 0.6f;
+        [SerializeField] [Range(0.1f, 0.5f)] private float minViewportClamp = 0.4f;
+        public float CurrentAcceleration { get; private set; } = 1f;
+        [SerializeField] private Camera _camera;
+        public float Sensitivity => sensitivity;
+        public float TurnConstraintAngle => turnConstraintAngle;
+        public float TurnSpeed => turnSpeed;
+        private void Awake()
         {
             Input.ResetInputAxes();
             Cursor.lockState = CursorLockMode.Locked;
+            transform.eulerAngles = rotation;
         }
 
         private void Update()
         {
+            ClampToViewPort();
             Move();
-            UpdatePitch();
-            UpdateRoll();
-            UpdateYaw();
-
-            if (Input.GetKeyDown(KeyCode.LeftShift))
+            Rotate();
+            
+            if (Input.GetKeyDown(KeyCode.W))
             {
                 StartCoroutine(SpeedBoost());
             }
         }
 
-        private void Move()
+        private void ClampToViewPort()
         {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration);
-            Vector3 newPosition = transform.forward * (currentSpeed * Time.deltaTime);
-            // transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * currentSpeed);
-            transform.position += newPosition;
+            Vector3 pos = _camera.WorldToViewportPoint (transform.position);
+            pos.x = Mathf.Clamp(pos.x, minViewportClamp, maxViewportClamp);
+            pos.y = Mathf.Clamp(pos.y, minViewportClamp, maxViewportClamp);
+            // transform.position = _camera.ViewportToWorldPoint(pos);
+            transform.position = Vector3.Lerp(transform.position, _camera.ViewportToWorldPoint(pos), Time.deltaTime);
         }
         
 
-        private void UpdatePitch()
+        private void Move()
+        {
+            currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, CurrentAcceleration);
+            Vector3 newPosition = transform.forward * (currentSpeed * Time.deltaTime);
+            transform.position += newPosition;
+        }
+        
+        private void Rotate()
+        {
+            var newRot = new Vector3(UpdatePitch(), UpdateYaw(), 0);
+            rotation += newRot;
+            transform.eulerAngles = rotation;
+        }
+        
+        private float UpdatePitch()
         {
             var mouseY = Input.GetAxis("Mouse Y");
-            if (mouseY== 0) return;
-            
-            var pitch = -mouseY * sensitivity;
-            pitch = Mathf.Clamp( pitch, -turnConstraintAngle, turnConstraintAngle);
-
-            var rotation = transform.rotation;
-            var newRotation = Quaternion.Euler(pitch, rotation.y, rotation.z);
-            rotation = Quaternion.Slerp(rotation, newRotation, Time.deltaTime * turnSpeed);
-            transform.rotation = rotation;
+            if (mouseY == 0) return 0;
+            return -(mouseY * sensitivity);
         }
 
-        private void UpdateRoll()
+        // private void UpdateRoll()
+        // {
+        //     var mouseX = Input.GetAxis("Mouse X");
+        //
+        //     if (mouseX == 0) return;
+        //     
+        //     var roll = -mouseX * sensitivity;
+        //
+        //     var rotation = transform.rotation;
+        //     var newRotation = Quaternion.Euler(rotation.x, rotation.y, roll);
+        //     transform.rotation = Quaternion.Slerp(rotation, newRotation, Time.deltaTime * turnSpeed);
+        // }
+
+        private float UpdateYaw()
         {
             var mouseX = Input.GetAxis("Mouse X");
-
-            if (mouseX == 0) return;
-            
-            var roll = mouseX * sensitivity;
-            roll = -Mathf.Clamp(roll, -turnConstraintAngle, turnConstraintAngle);
-            var rotation = transform.rotation;
-            var newRotation = Quaternion.Euler(rotation.x, rotation.y, roll);
-            rotation = Quaternion.Slerp(rotation, newRotation, Time.deltaTime * turnSpeed);
-            transform.rotation = rotation;
-        }
-
-        private void UpdateYaw()
-        {
-            var mouseX = Input.GetAxis("Mouse X");
-
-            if (mouseX == 0) return;
-            
-            var yaw = -mouseX * sensitivity;
-            yaw = -Mathf.Clamp(yaw, -turnConstraintAngle, turnConstraintAngle);
-            
-            var rotation = transform.rotation;
-            var newRotation = Quaternion.Euler(rotation.x, yaw, rotation.z);
-            rotation = Quaternion.Slerp(rotation, newRotation, Time.deltaTime * turnSpeed);
-            transform.rotation = rotation;
+            if (mouseX == 0) return 0;
+            return mouseX * sensitivity;
         }
 
         private IEnumerator SpeedBoost()
@@ -97,23 +100,16 @@ namespace SpaceFighter
             var currentMaxEnergy = energy;
             maxSpeed *= speedBoostMultiplier;
             
-            while (energy > 0 && Input.GetKey(KeyCode.LeftShift))
+            while (energy > 0 && Input.GetKey(KeyCode.W))
             {
-                acceleration = 15f;
+                CurrentAcceleration = maxSpeed;
                 energy -= 1;
                 yield return new WaitForSeconds(1f);
             }
 
             maxSpeed = currentMaxSpeed;
             energy = currentMaxEnergy;
-            acceleration = 1;
-        }
-
-
-
-        public Transform GetFollowTransform()
-        {
-            return cameraFollowTransform;
+            CurrentAcceleration = 1;
         }
     }
 }
