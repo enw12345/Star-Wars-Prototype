@@ -1,4 +1,3 @@
-using System;
 using SpaceFighter;
 using UnityEngine;
 
@@ -13,8 +12,6 @@ namespace CameraBehaviour
         [SerializeField] private float followSpeed = 2f;
         [SerializeField] private float followHeight = 2f;
         [SerializeField] private float accelerationDistance = 1;
-        [SerializeField] [Range(0.1f , 0.5f)] private float maxAcceleration = .5f;
-        [SerializeField] private float rotationOffset = 50f;
 
         private Vector3 _rotation = Vector3.zero;
 
@@ -29,9 +26,9 @@ namespace CameraBehaviour
 
         private void HandleAcceleration()
         {
-            _maxAccelerationDistance = spaceFighter.CurrentAcceleration > 1 ? (spaceFighter.CurrentAcceleration * maxAcceleration) : spaceFighter.CurrentAcceleration;
+            _maxAccelerationDistance = spaceFighter.CurrentAcceleration > 1 ? 1.5f : 1f;
 
-            accelerationDistance = Mathf.MoveTowards(accelerationDistance, _maxAccelerationDistance,
+            accelerationDistance = Mathf.Lerp(accelerationDistance, _maxAccelerationDistance,
                 followSpeed * Time.deltaTime);
         }
 

@@ -128,13 +128,13 @@ Shader "Unlit/SpaceShader"
                 
                 float n1 = noise(i.uv.xy * _NebulaScale * 1.0, _NebulaOffset1);
                 n1 = pow(n1 + _NebulaDensity, _NebulaFalloff);
-
+                
                 float n2 = noise(i.uv.xy * _NebulaScale * 1.0, _NebulaOffset2);
                 n2 = pow(n2 + _NebulaDensity, _NebulaFalloff);
-
+                
                 float n3 = noise(i.uv.xy * _NebulaScale * 1.0, _NebulaOffset3);
                 n3 = pow(n3 + _NebulaDensity, _NebulaFalloff);
-
+                
                 float n4 = noise(i.uv.xy * _NebulaScale * 1.0, _NebulaOffset4);
                 n4 = pow(n4 + _NebulaDensity, _NebulaFalloff);
 
@@ -145,17 +145,17 @@ Shader "Unlit/SpaceShader"
                 {
                     return col = _CoreColor;
                 }
-
+                
                 float e = 1.0 - exp(-(d - _StarRadius) * _HaloFalloff);
                 float3 rgb = lerp(_CoreColor, _HaloColor, e);
                 rgb = lerp(rgb, float3(0,0,0), e);
-
+                
                 fixed4 nebulaColor = float4(lerp(col, _NebulaColor, n));
                 fixed4 nebulaColor1 = float4(lerp(nebulaColor, _NebulaColor1, n1));
                 fixed4 nebulaColor2 = float4(lerp(nebulaColor1, _NebulaColor2, n2));
                 fixed4 nebulaColor3 = float4(lerp(nebulaColor2, _NebulaColor3, n3));
                 fixed4 nebulaColor4 = float4(lerp(nebulaColor3, _NebulaColor4, n4));
-
+                
                 fixed4 finalColor = nebulaColor4 + float4(rgb,1);
                 return finalColor;
             }

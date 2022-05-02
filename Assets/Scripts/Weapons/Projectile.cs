@@ -12,5 +12,10 @@ namespace Weapons
         {
             transform.position += transform.forward * _speed;
         }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            // other.TryGetComponent()
+        }
     }
 }

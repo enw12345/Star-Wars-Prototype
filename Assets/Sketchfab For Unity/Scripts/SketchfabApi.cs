@@ -4,334 +4,317 @@
  */
 
 #if UNITY_EDITOR
-using UnityEngine;
 using System.Collections.Generic;
 using SimpleJSON;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Sketchfab
 {
-	public delegate void UpdateCallback();
-	public delegate void TextRequestCallback(string response);
-	public delegate void DataRequestCallback(byte[] response);
-	public delegate void HeaderRequestCallback(Dictionary<string, string> response);
-	public delegate void WebRequestCallback(UnityWebRequest request);
-	public delegate void ProgressCallback(float progress);
-	public delegate void RefreshCallback();
+    public delegate void UpdateCallback();
 
-	class Utils
-	{
-		public static JSONNode JSONParse(string jsondata)
-		{
-			jsondata = jsondata.Replace("null", "\"null\"");
-			return JSON.Parse(jsondata);
-		}
+    public delegate void TextRequestCallback(string response);
 
-		// Add data to texture conversion util
-		public static string buildModelFetchUrl(string uid)
-		{
-			return SketchfabPlugin.Urls.modelEndPoint + "/" + uid;
-		}
+    public delegate void DataRequestCallback(byte[] response);
 
-		public static string humanifySize(int size)
-		{
-			string suffix = "";
-			float readable = size;
-			if (size >= 1000000) // Megabyte
-			{
-				suffix = "M";
-				readable = size / 1000000.0f;
-			}
-			else if (size >= 1000) // Kilobyte
-			{
-				suffix = "k";
-				readable = size / 1000.0f;
-			}
+    public delegate void HeaderRequestCallback(Dictionary<string, string> response);
 
-			readable = Mathf.Round(readable * 100) / 100;
-			return readable + suffix;
-		}
+    public delegate void WebRequestCallback(UnityWebRequest request);
 
-		public static string humanifyFileSize(int size)
-		{
-			string suffix = "B";
-			float readable = size;
-			if (size >= 1024 * 1024) // Megabyte
-			{
-				suffix = "MB";
-				readable = size / (1024.0f * 1024.0f);
-			}
-			else if (size >= 1024) // Kilobyte
-			{
-				suffix = "KB";
-				readable = size / 1024.0f;
-			}
+    public delegate void ProgressCallback(float progress);
 
-			readable = Mathf.Round(readable * 100) / 100;
-			
-			return readable.ToString().Replace(',', '.') + suffix;
-		}
-	}
+    public delegate void RefreshCallback();
 
-	public class SketchfabAPI
-	{
-		// Exporter objects and scripts
-		public static int REQUEST_TIMEOUT = 10;
-		public static int REQUEST_LIMITS = 10;
-		List<SketchfabRequest> _requests;
-		List<SketchfabRequest> _waiting;
+    internal class Utils
+    {
+        public static JSONNode JSONParse(string jsondata)
+        {
+            jsondata = jsondata.Replace("null", "\"null\"");
+            return JSON.Parse(jsondata);
+        }
 
-		public SketchfabAPI()
-		{
-			_requests = new List<SketchfabRequest>();
-		}
+        // Add data to texture conversion util
+        public static string buildModelFetchUrl(string uid)
+        {
+            return SketchfabPlugin.Urls.modelEndPoint + "/" + uid;
+        }
 
-		public void checkValidity()
-		{
-			if (_requests == null)
-			{
-				_requests = new List<SketchfabRequest>();
-			}
-		}
-		/// <summary>
-		/// Check all current requests
-		/// Consume them if success
-		/// Logs errors if they failed
-		/// </summary>
-		public void Update()
-		{
-			if (_requests == null || _requests.Count == 0)
-				return;
+        public static string humanifySize(int size)
+        {
+            var suffix = "";
+            float readable = size;
+            if (size >= 1000000) // Megabyte
+            {
+                suffix = "M";
+                readable = size / 1000000.0f;
+            }
+            else if (size >= 1000) // Kilobyte
+            {
+                suffix = "k";
+                readable = size / 1000.0f;
+            }
 
-			for(int i = 0; i< _requests.Count; ++i)
-			{
-				if (_requests[i] != null && _requests[i].isValid())
-				{
-					if (_requests[i].isDone())
-					{
-						if (_requests[i].success())
-						{
-							_requests[i].digest();
-						}
-						else
-						{
-							Debug.Log(_requests[i].getError());
-						}
+            readable = Mathf.Round(readable * 100) / 100;
+            return readable + suffix;
+        }
 
-						_requests[i].dispose();
-						_requests[i] = null;
-					}
-					else
-					{
-						_requests[i].getProgress();
-					}
-				}
+        public static string humanifyFileSize(int size)
+        {
+            var suffix = "B";
+            float readable = size;
+            if (size >= 1024 * 1024) // Megabyte
+            {
+                suffix = "MB";
+                readable = size / (1024.0f * 1024.0f);
+            }
+            else if (size >= 1024) // Kilobyte
+            {
+                suffix = "KB";
+                readable = size / 1024.0f;
+            }
 
-			}
+            readable = Mathf.Round(readable * 100) / 100;
 
-			// Remove disposed requests
-			for (int i = _requests.Count - 1; i >= 0; --i)
-			{
-				if(_requests[i] == null)
-				{
-					_requests.RemoveAt(i);
-				}
-			}
-		}
+            return readable.ToString().Replace(',', '.') + suffix;
+        }
+    }
 
-		public void dropRequest(ref SketchfabRequest request)
-		{
-			request.dispose();
-			_requests[0].dispose();
-			_requests.Clear();
-			_requests.Remove(request);
-			request = null;
-		}
+    public class SketchfabAPI
+    {
+        // Exporter objects and scripts
+        public static int REQUEST_TIMEOUT = 10;
+        public static int REQUEST_LIMITS = 10;
+        private List<SketchfabRequest> _requests;
+        private List<SketchfabRequest> _waiting;
 
-		// Instanciate requests (need to use limit and buffer)
-		public void registerRequest(SketchfabRequest request)
-		{
-			checkValidity();
-			_requests.Add(request);
-			request.send();
-		}
-	}
+        public SketchfabAPI()
+        {
+            _requests = new List<SketchfabRequest>();
+        }
 
-	public class SketchfabRequest
-	{
-		UnityWebRequest _request;
-		UpdateCallback _callback, _failedCallback;
-		TextRequestCallback _textCallback, _failedTextCallback;
-		DataRequestCallback _dataCallback;
-		HeaderRequestCallback _headerCallback;
-		WebRequestCallback _webRequestCallback;
-		ProgressCallback _progressCallback;
+        public void checkValidity()
+        {
+            if (_requests == null) _requests = new List<SketchfabRequest>();
+        }
 
-		public SketchfabRequest(string url, Dictionary<string, string> headers=null)
-		{
-			_request = new UnityWebRequest(url);
-			if(headers != null)
-			{
-				foreach (string key in headers.Keys)
-				{
-					_request.SetRequestHeader(key, headers[key]);
-				}
-			}
-			_request.downloadHandler = new DownloadHandlerBuffer();
-		}
+        /// <summary>
+        ///     Check all current requests
+        ///     Consume them if success
+        ///     Logs errors if they failed
+        /// </summary>
+        public void Update()
+        {
+            if (_requests == null || _requests.Count == 0)
+                return;
 
-		public SketchfabRequest(UnityWebRequest request)
-		{
-			_request = request;
-		}
+            for (var i = 0; i < _requests.Count; ++i)
+                if (_requests[i] != null && _requests[i].isValid())
+                {
+                    if (_requests[i].isDone())
+                    {
+                        if (_requests[i].success())
+                            _requests[i].digest();
+                        else
+                            Debug.Log(_requests[i].getError());
 
-		public SketchfabRequest(string url, List<IMultipartFormSection> _multiPart)
-		{
-			_request = UnityWebRequest.Post(url, _multiPart);
-		}
+                        _requests[i].dispose();
+                        _requests[i] = null;
+                    }
+                    else
+                    {
+                        _requests[i].getProgress();
+                    }
+                }
 
-		public SketchfabRequest(string url, Dictionary<string, string> headers, List<IMultipartFormSection> _multiPart = null)
-		{
-			if (_multiPart != null)
-				_request = UnityWebRequest.Post(url, _multiPart);
-			else
-				_request = UnityWebRequest.Get(url);
+            // Remove disposed requests
+            for (var i = _requests.Count - 1; i >= 0; --i)
+                if (_requests[i] == null)
+                    _requests.RemoveAt(i);
+        }
 
-			foreach (string key in headers.Keys)
-			{
-				_request.SetRequestHeader(key, headers[key]);
-			}
-		}
+        public void dropRequest(ref SketchfabRequest request)
+        {
+            request.dispose();
+            _requests[0].dispose();
+            _requests.Clear();
+            _requests.Remove(request);
+            request = null;
+        }
 
-		public void setCallback(UpdateCallback cb)
-		{
-			_callback = cb;
-		}
+        // Instanciate requests (need to use limit and buffer)
+        public void registerRequest(SketchfabRequest request)
+        {
+            checkValidity();
+            _requests.Add(request);
+            request.send();
+        }
+    }
 
-		public void setCallback(TextRequestCallback cb)
-		{
-			_textCallback = cb;
-		}
+    public class SketchfabRequest
+    {
+        private UpdateCallback _callback, _failedCallback;
+        private DataRequestCallback _dataCallback;
+        private HeaderRequestCallback _headerCallback;
+        private ProgressCallback _progressCallback;
+        private UnityWebRequest _request;
+        private TextRequestCallback _textCallback, _failedTextCallback;
+        private WebRequestCallback _webRequestCallback;
 
-		public void setFailedCallback(UpdateCallback cb)
-		{
-			_failedCallback = cb;
-		}
+        public SketchfabRequest(string url, Dictionary<string, string> headers = null)
+        {
+            _request = new UnityWebRequest(url);
+            if (headers != null)
+                foreach (var key in headers.Keys)
+                    _request.SetRequestHeader(key, headers[key]);
+            _request.downloadHandler = new DownloadHandlerBuffer();
+        }
 
-		public void setFailedCallback(TextRequestCallback cb)
-		{
-			_failedTextCallback = cb;
-		}
+        public SketchfabRequest(UnityWebRequest request)
+        {
+            _request = request;
+        }
 
-		public void setCallback(DataRequestCallback cb)
-		{
-			_dataCallback = cb;
-			if(_request.downloadHandler == null)
-			{
-				_request.downloadHandler = new DownloadHandlerBuffer();
-			}
-		}
+        public SketchfabRequest(string url, List<IMultipartFormSection> _multiPart)
+        {
+            _request = UnityWebRequest.Post(url, _multiPart);
+        }
 
-		public void setCallback(HeaderRequestCallback cb)
-		{
-			_headerCallback = cb;
-		}
+        public SketchfabRequest(string url, Dictionary<string, string> headers,
+            List<IMultipartFormSection> _multiPart = null)
+        {
+            if (_multiPart != null)
+                _request = UnityWebRequest.Post(url, _multiPart);
+            else
+                _request = UnityWebRequest.Get(url);
 
-		public void setCallback(WebRequestCallback cb)
-		{
-			_webRequestCallback = cb;
-		}
+            foreach (var key in headers.Keys) _request.SetRequestHeader(key, headers[key]);
+        }
 
-		public void send()
-		{
-			if (_request != null)
+        public void setCallback(UpdateCallback cb)
+        {
+            _callback = cb;
+        }
+
+        public void setCallback(TextRequestCallback cb)
+        {
+            _textCallback = cb;
+        }
+
+        public void setFailedCallback(UpdateCallback cb)
+        {
+            _failedCallback = cb;
+        }
+
+        public void setFailedCallback(TextRequestCallback cb)
+        {
+            _failedTextCallback = cb;
+        }
+
+        public void setCallback(DataRequestCallback cb)
+        {
+            _dataCallback = cb;
+            if (_request.downloadHandler == null) _request.downloadHandler = new DownloadHandlerBuffer();
+        }
+
+        public void setCallback(HeaderRequestCallback cb)
+        {
+            _headerCallback = cb;
+        }
+
+        public void setCallback(WebRequestCallback cb)
+        {
+            _webRequestCallback = cb;
+        }
+
+        public void send()
+        {
+            if (_request != null)
 #if UNITY_5_6 || UNITY_2017_0 || UNITY_2017_1
 				_request.Send();
 #else
-				_request.SendWebRequest();
+                _request.SendWebRequest();
 #endif
+        }
 
-		}
+        public void digest()
+        {
+            if (_callback != null)
+                _callback();
+            if (_textCallback != null)
+                _textCallback(_request.downloadHandler.text);
+            if (_dataCallback != null)
+                _dataCallback(_request.downloadHandler.data);
+            if (_headerCallback != null)
+                _headerCallback(_request.GetResponseHeaders());
+            if (_webRequestCallback != null)
+                _webRequestCallback(_request);
+        }
 
-		public void digest()
-		{
-			if (_callback != null)
-				_callback();
-			if (_textCallback != null)
-				_textCallback(_request.downloadHandler.text);
-			if (_dataCallback != null)
-				_dataCallback(_request.downloadHandler.data);
-			if (_headerCallback != null)
-				_headerCallback(_request.GetResponseHeaders());
-			if (_webRequestCallback != null)
-				_webRequestCallback(_request);
-		}
+        public void setProgressCallback(ProgressCallback callback)
+        {
+            _progressCallback = callback;
+        }
 
-		public  void setProgressCallback(ProgressCallback callback)
-		{
-			_progressCallback = callback;
-		}
+        public void dispose()
+        {
+            if (_request != null)
+            {
+                _request.Dispose();
+                _request = null;
+            }
+        }
 
-		public void dispose()
-		{
-			if(_request != null)
-			{
-				_request.Dispose();
-				_request = null;
-			}
-		}
+        public bool success()
+        {
+            return _request.responseCode == 200 || _request.responseCode == 201;
+        }
 
-		public bool success()
-		{
-			return _request.responseCode == 200 || _request.responseCode == 201;
-		}
+        public string getError()
+        {
+            if (_failedCallback != null)
+                _failedCallback();
 
-		public string getError()
-		{
-			if (_failedCallback != null)
-				_failedCallback();
+            if (_failedTextCallback != null)
+                _failedTextCallback(_request.downloadHandler.text);
 
-			if (_failedTextCallback != null)
-				_failedTextCallback(_request.downloadHandler.text);
+            return _request.responseCode + " " + _request.error;
+        }
 
-			return _request.responseCode + " " + _request.error;
-		}
+        public bool isDone()
+        {
+            return _request.isDone;
+        }
 
-		public bool isDone()
-		{
-			return _request.isDone;
-		}
+        public bool isValid()
+        {
+            return _request != null;
+        }
 
-		public bool isValid()
-		{
-			return _request != null;
-		}
+        public string getResponse()
+        {
+            return _request.downloadHandler.text;
+        }
 
-		public string getResponse()
-		{
-			return _request.downloadHandler.text;
-		}
+        public byte[] getResponseData()
+        {
+            return _request.downloadHandler.data;
+        }
 
-		public byte[] getResponseData()
-		{
-			return _request.downloadHandler.data;
-		}
+        public void getProgress()
+        {
+            if (_progressCallback != null)
+            {
+                if (_request.uploadHandler != null)
+                    _progressCallback(_request.uploadProgress);
+                else if (!_request.downloadHandler.isDone)
+                    _progressCallback(_request.downloadProgress);
+            }
+        }
 
-		public void getProgress()
-		{
-			if(_progressCallback != null)
-			{
-				if (_request.uploadHandler != null)
-					_progressCallback(_request.uploadProgress);
-				else if (!_request.downloadHandler.isDone)
-					_progressCallback(_request.downloadProgress);
-			}
-		}
-
-		public Dictionary<string, string> getResponseHeaders()
-		{
-			return _request.GetResponseHeaders();
-		}
-	}
+        public Dictionary<string, string> getResponseHeaders()
+        {
+            return _request.GetResponseHeaders();
+        }
+    }
 }
 #endif
