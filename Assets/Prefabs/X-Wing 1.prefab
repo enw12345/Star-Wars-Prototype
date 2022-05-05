@@ -161,7 +161,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: b9d1889175aabd34ea4301e16a9328d1, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.2
   m_Pitch: 0.64
   Loop: 0
   Mute: 0
@@ -505,7 +505,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: b9d1889175aabd34ea4301e16a9328d1, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -666,7 +666,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: b9d1889175aabd34ea4301e16a9328d1, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1021,7 +1021,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4736889136546176521}
-  - component: {fileID: 3691116185858588266}
   - component: {fileID: 23560406}
   - component: {fileID: 23560408}
   - component: {fileID: 23560407}
@@ -1064,22 +1063,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3691116185858588266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3344693461560569009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1316a57322f41928472314bf246e0fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animationSmoothing: 0.1
-  maxAnimationPositionOffset: 20
-  maxAnimationRotation: -20
-  minAnimationRotation: 20
 --- !u!114 &23560406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1106,7 +1089,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: ab77b9cd1bf2d0244bf50f6bab2a7917, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.2
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -1202,7 +1185,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 2a9b04b6198c27b4a87952e4d6439854, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.2
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -1304,8 +1287,8 @@ MonoBehaviour:
   energy: 5
   speedBoostMultiplier: 2
   _camera: {fileID: 0}
-  maxViewportClamp: 0.6
-  minViewportClamp: 0.4
+  maxViewportClamp: 0.5
+  minViewportClamp: 0.5
 --- !u!1 &5077195608006657249
 GameObject:
   m_ObjectHideFlags: 0
@@ -1702,7 +1685,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: b9d1889175aabd34ea4301e16a9328d1, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0

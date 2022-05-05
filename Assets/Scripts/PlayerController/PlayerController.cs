@@ -6,8 +6,10 @@ namespace PlayerController
     public class PlayerController : SpaceFighterBehaviour
     {
         [SerializeField] private Camera _camera;
-        [SerializeField] [Range(0.5f, 1)] private float maxViewportClamp = 0.6f;
-        [SerializeField] [Range(0.1f, 0.5f)] private float minViewportClamp = 0.4f;
+        [SerializeField] [Range(0f, 1)] private float maxViewportClampY = 0.6f;
+        [SerializeField] [Range(0f, 1f)] private float minViewportClampY = 0.4f;
+        [SerializeField] [Range(0f, 1)] private float maxViewportClampX = 0.6f;
+         [SerializeField] [Range(0f, 1f)] private float minViewportClampX = 0.4f;
         protected override void Update()
         {
             ClampToViewPort();
@@ -21,9 +23,8 @@ namespace PlayerController
         private void ClampToViewPort()
         {
             Vector3 pos = _camera.WorldToViewportPoint (transform.position);
-            pos.x = Mathf.Clamp(pos.x, minViewportClamp, maxViewportClamp);
-            pos.y = Mathf.Clamp(pos.y, minViewportClamp, maxViewportClamp);
-
+            pos.x = Mathf.Clamp(pos.x, minViewportClampX, maxViewportClampX);
+            pos.y = Mathf.Clamp(pos.y, minViewportClampY, maxViewportClampY);
             transform.position = Vector3.Lerp(transform.position, _camera.ViewportToWorldPoint(pos), Time.deltaTime);
         }
 

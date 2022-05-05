@@ -19,7 +19,7 @@ namespace SpaceFighter
         public float CurrentAcceleration { get; private set; } = 1f;
         public float Sensitivity => sensitivity;
         public float TurnSpeed => turnSpeed;
-        private void Awake()
+        protected virtual void Awake()
         {
             Input.ResetInputAxes();
             Cursor.lockState = CursorLockMode.Locked;
@@ -39,7 +39,7 @@ namespace SpaceFighter
             transform.position += newPosition;
         }
         
-        public void Rotate()
+        private void Rotate()
         {
             var addedRotation = new Vector3(UpdatePitch(), UpdateYaw(), UpdateRoll());
             rotation += addedRotation;

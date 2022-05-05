@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PostEffects
 {
@@ -10,38 +9,30 @@ namespace PostEffects
         [Range(0, 0.1f)] [SerializeField] private float StarFieldDensity;
         [SerializeField] private float StarFieldBrightness;
         [SerializeField] private Vector3 StarFieldCellSize;
-
-        private int _starFieldDensityProperty;
         private int _starFieldBrightnessProperty;
         private int _starFieldCellSizeProperty;
-        
+        private int _starFieldDensityProperty;
+
         private void Awake()
         {
-            _starFieldDensityProperty = Shader.PropertyToID("_StarFieldDensity");
-            _starFieldBrightnessProperty = Shader.PropertyToID("_StarFieldBrightness");
-            _starFieldCellSizeProperty = Shader.PropertyToID("_StarFieldCellSize");
-            
-            Shader.SetGlobalFloat(_starFieldDensityProperty, StarFieldDensity);
-            Shader.SetGlobalFloat(_starFieldBrightnessProperty, StarFieldBrightness);
-            Shader.SetGlobalVector(_starFieldCellSizeProperty, StarFieldCellSize);
+            SetStarfieldProperties();
         }
 
         private void OnRenderImage(RenderTexture src, RenderTexture dest)
         {
-            TestShaderProperties();
+            SetStarfieldProperties();
             Graphics.Blit(src, dest, StarFieldMaterial);
         }
 
-        private void TestShaderProperties()
+        private void SetStarfieldProperties()
         {
             _starFieldDensityProperty = Shader.PropertyToID("_StarFieldDensity");
             _starFieldBrightnessProperty = Shader.PropertyToID("_StarFieldBrightness");
             _starFieldCellSizeProperty = Shader.PropertyToID("_StarFieldCellSize");
-            
+
             Shader.SetGlobalFloat(_starFieldDensityProperty, StarFieldDensity);
             Shader.SetGlobalFloat(_starFieldBrightnessProperty, StarFieldBrightness);
             Shader.SetGlobalVector(_starFieldCellSizeProperty, StarFieldCellSize);
         }
-        
     }
 }
