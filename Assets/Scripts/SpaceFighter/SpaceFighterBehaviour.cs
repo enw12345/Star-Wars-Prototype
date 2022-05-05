@@ -15,7 +15,7 @@ namespace SpaceFighter
         private float currentSpeed = 0;
         [SerializeField] private float energy = 5f;
         [SerializeField] private float speedBoostMultiplier = 10f;
-        private Vector3 rotation = Vector3.zero;
+
         public float CurrentAcceleration { get; private set; } = 1f;
         public float Sensitivity => sensitivity;
         public float TurnSpeed => turnSpeed;
@@ -23,7 +23,6 @@ namespace SpaceFighter
         {
             Input.ResetInputAxes();
             Cursor.lockState = CursorLockMode.Locked;
-            transform.eulerAngles = rotation;
         }
 
         protected virtual void Update()
@@ -39,11 +38,9 @@ namespace SpaceFighter
             transform.position += newPosition;
         }
         
-        private void Rotate()
+        protected virtual void Rotate()
         {
-            var addedRotation = new Vector3(UpdatePitch(), UpdateYaw(), UpdateRoll());
-            rotation += addedRotation;
-            transform.eulerAngles = rotation;
+
         }
         
         protected virtual float UpdatePitch()

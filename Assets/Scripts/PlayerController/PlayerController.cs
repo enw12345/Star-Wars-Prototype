@@ -10,7 +10,15 @@ namespace PlayerController
         [SerializeField] [Range(0f, 1f)] private float minViewportClampY = 0.4f;
         [SerializeField] [Range(0f, 1)] private float maxViewportClampX = 0.6f;
          [SerializeField] [Range(0f, 1f)] private float minViewportClampX = 0.4f;
-        protected override void Update()
+         private Vector3 _rotation = Vector3.zero;
+
+         protected override void Awake()
+         {
+             base.Awake();
+             transform.eulerAngles = _rotation;
+         }
+
+         protected override void Update()
         {
             ClampToViewPort();
             base.Update();
@@ -28,6 +36,13 @@ namespace PlayerController
             transform.position = Vector3.Lerp(transform.position, _camera.ViewportToWorldPoint(pos), Time.deltaTime);
         }
 
+        protected override void Rotate()
+        {
+            var addedRotation = new Vector3(UpdatePitch(), UpdateYaw(), UpdateRoll());
+            _rotation += addedRotation;
+            transform.eulerAngles = _rotation;
+        }
+        
         protected override float UpdatePitch()
         {
             var mouseY = Input.GetAxis("Mouse Y");

@@ -1,23 +1,17 @@
-﻿using System;
-using SpaceFighter;
-using Unity.VisualScripting;
+﻿using SpaceFighter;
 using UnityEngine;
 
 namespace AIController
 {
     public class AIController : SpaceFighterBehaviour
     {
-
-        // public static SpaceFighterBehaviour Player;
         public static Transform PlayerTransform;
-        private Vector3 Destination;
         [SerializeField] private float followDistance = 25;
-        [SerializeField] private float rotationSpeed = 25f;
-        [SerializeField] private float rotationThreshold = .15f;
+        private Vector3 Destination;
+
         protected override void Awake()
         {
             base.Awake();
-            // Player = GameObject.FindWithTag("Player").GetComponent<SpaceFighterBehaviour>();
             PlayerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
         }
 
@@ -27,13 +21,25 @@ namespace AIController
             base.Update();
         }
 
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(transform.position, Destination);
+        }
+
+        protected override void Rotate()
+        {
+            var newRotationEuler = new Vector3(UpdatePitch(), UpdateYaw(), UpdateRoll());
+            var newRotation = Quaternion.Euler(newRotationEuler);
+            
+            transform.rotation = Quaternion.LookRotation(Destination, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, newRotation, Time.deltaTime * 500);
+        }
+
         protected override float UpdatePitch()
         {
-            var desiredRotation = Mathf.Atan2(Destination.y , transform.position.z);
-            if (transform.rotation.x > desiredRotation + rotationThreshold) {return rotationSpeed;}
-            if (transform.rotation.x < desiredRotation - rotationThreshold) {return -rotationSpeed;}
-
-            return 0;
+            var desiredRotation = -Mathf.Atan2(Destination.y, transform.position.z);
+            return Mathf.Rad2Deg * desiredRotation;
         }
 
         protected override float UpdateRoll()
@@ -43,23 +49,16 @@ namespace AIController
 
         protected override float UpdateYaw()
         {
-            var desiredRotation = Mathf.Atan2(Destination.x , transform.position.z);
-            
-            if (transform.rotation.y > desiredRotation + rotationThreshold) return -rotationSpeed;
-            if (transform.rotation.y < desiredRotation - rotationThreshold) return rotationSpeed;
-            return 0;
+            var desiredRotation = Mathf.Atan2(Destination.x, transform.position.z);
+            return Mathf.Rad2Deg * desiredRotation;
         }
 
         private void FindDestination()
         {
-            Destination = PlayerTransform.position - transform.position;
-            
+            var destination = PlayerTransform.position - transform.position;
+            Destination = destination;
+            // Destination = new Vector3(destination.x, destination.y, destination.z - followDistance);
         }
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(transform.position, Destination);
-        }
+        
     }
 }
