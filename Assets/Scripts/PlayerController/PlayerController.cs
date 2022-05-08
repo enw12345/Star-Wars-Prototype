@@ -22,7 +22,7 @@ namespace PlayerController
         {
             ClampToViewPort();
             base.Update();
-            if (Input.GetKeyDown(KeyCode.W))
+            if (Input.GetKeyDown(KeyCode.W) && EnergyIsFull)
             {
                 StartCoroutine(SpeedBoost());
             }
@@ -62,11 +62,11 @@ namespace PlayerController
             var roll = 0f;
             if (Input.GetKey(KeyCode.A))
             {
-                roll = 1;
+                roll = turnSpeed;
             }
             else if (Input.GetKey(KeyCode.D))
             {
-                roll = -1;
+                roll = -turnSpeed;
             }
 
             return roll;

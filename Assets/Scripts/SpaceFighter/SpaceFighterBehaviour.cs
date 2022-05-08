@@ -13,22 +13,25 @@ namespace SpaceFighter
         [SerializeField] protected float turnSpeed = 2f;
         [SerializeField] protected float sensitivity = 1f;
         private float currentSpeed = 0;
-        [SerializeField] private float energy = 5f;
+        [SerializeField] private float fullEnergy = 5f;
         [SerializeField] private float speedBoostMultiplier = 10f;
+        protected float currentEnergy;
 
         public float CurrentAcceleration { get; private set; } = 1f;
         public float Sensitivity => sensitivity;
         public float TurnSpeed => turnSpeed;
+        protected bool EnergyIsFull => currentEnergy >= fullEnergy;
         protected virtual void Awake()
         {
             Input.ResetInputAxes();
             Cursor.lockState = CursorLockMode.Locked;
+            currentEnergy = fullEnergy;
         }
 
         protected virtual void Update()
         {
-            Move();
             Rotate();
+            Move();
         }
         
         private void Move()
@@ -61,18 +64,17 @@ namespace SpaceFighter
         protected IEnumerator SpeedBoost()
         {
             var currentMaxSpeed = maxSpeed;
-            var currentMaxEnergy = energy;
             maxSpeed *= speedBoostMultiplier;
             
-            while (energy > 0 && Input.GetKey(KeyCode.W))
+            while (currentEnergy > 0 && Input.GetKey(KeyCode.W))
             {
                 CurrentAcceleration = maxSpeed;
-                energy -= 1;
+                currentEnergy -= 1;
                 yield return new WaitForSeconds(1f);
             }
 
             maxSpeed = currentMaxSpeed;
-            energy = currentMaxEnergy;
+            currentEnergy = fullEnergy;
             CurrentAcceleration = 1;
         }
     }
