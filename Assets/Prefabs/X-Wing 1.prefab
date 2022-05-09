@@ -1025,9 +1025,11 @@ GameObject:
   - component: {fileID: 23560408}
   - component: {fileID: 23560407}
   - component: {fileID: 923252718}
+  - component: {fileID: 3561225041688542468}
+  - component: {fileID: 7176441399580447020}
   m_Layer: 0
   m_Name: X-Wing 1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1095,7 +1097,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 58
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -1282,13 +1284,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSpeed: 250
-  turnSpeed: 2
+  turnSpeed: 3
   sensitivity: 1
-  energy: 5
+  fullEnergy: 5
   speedBoostMultiplier: 2
   _camera: {fileID: 0}
-  maxViewportClamp: 0.5
-  minViewportClamp: 0.5
+  maxViewportClampY: 0.3
+  minViewportClampY: 0.3
+  maxViewportClampX: 0.5
+  minViewportClampX: 0.5
+--- !u!114 &3561225041688542468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3344693461560569009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 553ef7ee9e804c63ab379b26fb543d24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _health: 25
+--- !u!135 &7176441399580447020
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3344693461560569009}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 25
+  m_Center: {x: 0, y: 9.6, z: -9.2}
 --- !u!1 &5077195608006657249
 GameObject:
   m_ObjectHideFlags: 0

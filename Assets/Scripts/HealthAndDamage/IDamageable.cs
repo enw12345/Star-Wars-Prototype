@@ -1,4 +1,4 @@
-﻿namespace Health
+﻿namespace HealthAndDamage
 {
     public interface IDamageable
     {
