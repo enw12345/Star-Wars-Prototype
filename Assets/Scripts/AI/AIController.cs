@@ -1,5 +1,6 @@
 ﻿using SpaceFighter;
 using UnityEngine;
+using Manager;
 
 namespace AI
 {
@@ -24,10 +25,13 @@ namespace AI
 
         protected override void Update()
         {
-            SetForward();
-            FindDestination();
-            base.Update();
-            _timeSinceLastDestinationChange += Time.deltaTime;
+            if (GameManager.GameStart)
+            {
+                SetForward();
+                FindDestination();
+                base.Update();
+                _timeSinceLastDestinationChange += Time.deltaTime;
+            }
         }
 
         protected override void Rotate()

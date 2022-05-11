@@ -26,6 +26,8 @@ namespace Weapons
             other.TryGetComponent(out IDamageable damageable);
             if(damageable != null)
                     damageable.TakeDamage(_damage);
+
+            //Play particle effect
             Destroy(transform.gameObject);
         }
     }

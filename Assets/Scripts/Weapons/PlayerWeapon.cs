@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Manager;
 
 namespace Weapons
 {
@@ -8,12 +9,16 @@ namespace Weapons
 
         private void Update()
         {
-            _timeSinceLastFired += Time.deltaTime;
+            if (GameManager.GameStart)
+            {
+                _timeSinceLastFired += Time.deltaTime;
 
-            if (!Input.GetMouseButton(0)) return;
+                if (!Input.GetMouseButton(0)) return;
 
-            if (Shoot(_timeSinceLastFired))
-                _timeSinceLastFired = 0;
+                if (Shoot(_timeSinceLastFired))
+                    _timeSinceLastFired = 0;
+            }
+
         }
     }
 }
