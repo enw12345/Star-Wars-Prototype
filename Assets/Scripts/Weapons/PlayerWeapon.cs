@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Manager;
+using Managers;
 
 namespace Weapons
 {

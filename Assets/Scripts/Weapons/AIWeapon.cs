@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using AI;
-using Manager;
+using Managers;
+
 namespace Weapons
 {
     public class AIWeapon : Weapon

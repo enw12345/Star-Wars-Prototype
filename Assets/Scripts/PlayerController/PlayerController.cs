@@ -1,6 +1,6 @@
 ﻿using SpaceFighter;
 using UnityEngine;
-using Manager;
+using Managers;
 
 namespace PlayerController
 {

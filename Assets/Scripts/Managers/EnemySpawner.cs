@@ -1,8 +1,8 @@
+using HealthAndDamage;
 using UnityEngine;
 
-namespace Manager
+namespace Managers
 {
-
     public class EnemySpawner : MonoBehaviour
     {
         [SerializeField] private GameObject enemy;
@@ -10,15 +10,23 @@ namespace Manager
         [SerializeField][Range(1f, 5f)] private float spawnTime = 3f;
         [SerializeField][Range(100f, 250f)] private float minSpawnRange = 300f;
         [SerializeField][Range(250f, 500f)] private float maxSpawnRange = 300f;
-        private float spawnTimer = 0;
+        private float _spawnTimer;
+
+        private int _enemyCount;
+
+        public static int DestroyedEnemies;
+
+        public int MaxEnemyCount => maxEnemyCount;
 
         // Update is called once per frame
         void Update()
         {
-            spawnTimer += Time.deltaTime;
-            if (spawnTimer >= spawnTime){
+            if (!GameManager.GameStart) return;
+            _spawnTimer += Time.deltaTime;
+            
+            if (_spawnTimer >= spawnTime && _enemyCount < maxEnemyCount){
                 SpawnEnemies();
-                spawnTimer = 0;
+                _spawnTimer = 0;
             }
         }
 
@@ -30,8 +38,15 @@ namespace Manager
 
             var spawnPosition = new Vector3(x, y, z);
 
-            Instantiate(enemy, spawnPosition, Quaternion.identity);
+            var spawnedEnemy = Instantiate(enemy, spawnPosition, Quaternion.identity);
+            _enemyCount++;
+
+            spawnedEnemy.GetComponent<Health>().Died += EnemyDeath;
+        }
+
+        private void EnemyDeath()
+        {
+            DestroyedEnemies++;
         }
     }
-
 }
